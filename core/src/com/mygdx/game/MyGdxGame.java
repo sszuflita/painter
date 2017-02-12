@@ -21,7 +21,7 @@ public class MyGdxGame extends ApplicationAdapter {
 
 		Entity playerState = new Entity(0, 0, 0, 0, 0, 0, 0);
 		Array<Entity> pastStates = Array.of(Entity.class);
-		lastGameState = new GameState(playerState, pastStates, false);
+		lastGameState = new GameState(playerState, pastStates, false, 0);
 	}
 
 	@Override
@@ -63,10 +63,14 @@ public class MyGdxGame extends ApplicationAdapter {
 		Entity newPlayerState = new Entity(newX, newY, 0, newVy, 0, newAy, 0);
 
 		Array<Entity> pastStates = lastGameState.getPastStates();
-		pastStates.add(lastGameState.getPlayerState());
-		updatePastStates(pastStates);
 
-		GameState newGameState = new GameState(newPlayerState, pastStates, newIsJumping);
+		if (lastGameState.getFrameCounter() % 10 == 0) {
+			pastStates.add(lastGameState.getPlayerState());
+			updatePastStates(pastStates);	
+		}
+
+		GameState newGameState = new GameState(newPlayerState, pastStates, newIsJumping,
+				lastGameState.getFrameCounter() + 1);
 		draw(newGameState);
 
 		lastGameState = newGameState;
