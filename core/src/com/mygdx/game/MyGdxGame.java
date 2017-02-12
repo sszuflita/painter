@@ -42,16 +42,16 @@ public class MyGdxGame extends ApplicationAdapter {
 		batch.begin();
 
 		if(Gdx.input.isKeyPressed(Input.Keys.LEFT)){
-			x -= 10 * delta;
+			x -= 200 * delta;
 		}
 
 		if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-			x += 10 * delta;
+			x += 200 * delta;
 		}
 
 		if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && !isJumping) {
 			isJumping = true;
-			ay += 100;
+			ay += 1000;
 		} else if (y <= 0){
 			isJumping = false;
 		}
@@ -65,7 +65,7 @@ public class MyGdxGame extends ApplicationAdapter {
 			ay = 0;
 			vy = 0;
 		} else {
-			ay = ay - 10;
+			ay = ay - 100;
 		}
 
 		batch.draw(img, x, y, 100, 100);
