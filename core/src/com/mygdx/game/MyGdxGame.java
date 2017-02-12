@@ -11,30 +11,16 @@ import com.badlogic.gdx.utils.Array;
 public class MyGdxGame extends ApplicationAdapter {
 	SpriteBatch batch;
 	Texture img;
-	GameState lastState;
-	float x;
-	float y;
-	float vx;
-	float vy;
-	float ax;
-	float ay;
+	GameState lastGameState;
 
-	boolean isJumping;
-	
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
 		img = new Texture("circle.jpg");
-		x = 0;
-		y = 0;
-		vx = 0;
-		vy = 0;
-		ax = 0;
-		ay = 0;
 
 		Entity playerState = new Entity(0, 0, 0, 0, 0, 0);
 		Array<Entity> pastStates = Array.of(Entity.class);
-		lastState = new GameState(playerState, pastStates, false);
+		lastGameState = new GameState(playerState, pastStates, false);
 	}
 
 	@Override
@@ -42,43 +28,62 @@ public class MyGdxGame extends ApplicationAdapter {
 
 		float delta = Gdx.graphics.getDeltaTime();
 
-		Gdx.gl.glClearColor(1.0f, 1.0f, 1.0f, .9f);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		batch.begin();
+		clearScreen();
 
+		Entity lastPlayerState = lastGameState.getPlayerState();
+
+		float newX = lastPlayerState.getX();
 		if(Gdx.input.isKeyPressed(Input.Keys.LEFT)){
-			x -= 200 * delta;
+			newX -= 200 * delta;
 		}
 
 		if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-			x += 200 * delta;
+			newX += 200 * delta;
 		}
 
-		if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && !isJumping) {
-			isJumping = true;
-			ay += 1000;
-		} else if (y <= 0){
-			isJumping = false;
+		float newVy = lastPlayerState.getyVelocity() + lastPlayerState.getyAcceleration() * delta;
+		float newY = lastPlayerState.getY() + lastPlayerState.getyVelocity() * delta;
+
+		float newAy = lastPlayerState.getyAcceleration() - 100;
+		boolean newIsJumping = lastGameState.isJumping();
+		if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && !lastGameState.isJumping()) {
+			newIsJumping = true;
+			newAy += 1000;
+		} else if (lastPlayerState.getY() <= 0){
+			newIsJumping = false;
 		}
 
-		y = y + vy * delta;
-
-		vy = vy + ay * delta;
-
-		if (y < 0) {
-			y = 0;
-			ay = 0;
-			vy = 0;
-		} else {
-			ay = ay - 100;
+		if (newY < 0) {
+			newAy = 0;
+			newY = 0;
+			newVy = 0;
 		}
 
-		batch.draw(img, x, y, 100, 100);
-		batch.end();
+		Entity newPlayerState = new Entity(newX, newY, 0, newVy, 0, newAy);
+
+		Array<Entity> pastStates = lastGameState.getPastStates();
+		pastStates.add(lastGameState.getPlayerState());
+
+		GameState newGameState = new GameState(newPlayerState, pastStates, newIsJumping);
+		draw(newGameState);
+
+		lastGameState = newGameState;
 
 		if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
 			dispose();
 		}
+	}
+
+	private void clearScreen() {
+		Gdx.gl.glClearColor(1.0f, 1.0f, 1.0f, .9f);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+	}
+
+	private void draw(GameState gameState) {
+		batch.begin();
+		batch.draw(img, gameState.getPlayerState().getX(), gameState.getPlayerState().getY(), 100, 100);
+		batch.end();
+
 	}
 	
 	@Override
