@@ -6,10 +6,12 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.Array;
 
 public class MyGdxGame extends ApplicationAdapter {
 	SpriteBatch batch;
 	Texture img;
+	GameState lastState;
 	float x;
 	float y;
 	float vx;
@@ -29,11 +31,14 @@ public class MyGdxGame extends ApplicationAdapter {
 		vy = 0;
 		ax = 0;
 		ay = 0;
+
+		Entity playerState = new Entity(0, 0, 0, 0, 0, 0);
+		Array<Entity> pastStates = Array.of(Entity.class);
+		lastState = new GameState(playerState, pastStates, false);
 	}
 
 	@Override
 	public void render () {
-
 
 		float delta = Gdx.graphics.getDeltaTime();
 
